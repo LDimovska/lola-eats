@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react'
 import type { RecipeLine } from './nutrition-data'
-import { EGGSHELL_POWDER_ID, INGREDIENTS } from './nutrition-data'
+import {
+  EGGSHELL_POWDER_ID,
+  INGREDIENTS,
+  INGREDIENTS_BY_ID,
+  MEAT_CATEGORIES,
+} from './nutrition-data'
 import type {
   ActivityLevel,
   DogProfile,
@@ -32,6 +37,10 @@ export interface SavedRecipe {
   name: string
   lines: RecipeLine[]
   createdAt: number
+}
+
+interface CookModeState {
+  baseLines: RecipeLine[]
 }
 
 function loadSavedRecipes(): SavedRecipe[] {
@@ -68,6 +77,26 @@ function createEmptyLine(): RecipeLine {
 
 function duplicateLines(lines: RecipeLine[]): RecipeLine[] {
   return lines.map((l) => ({ ...l, id: createRecipeLineId() }))
+}
+
+function cloneLines(lines: RecipeLine[]): RecipeLine[] {
+  return lines.map((line) => ({ ...line }))
+}
+
+function isMeatIngredient(ingredientId: string): boolean {
+  const ingredient = INGREDIENTS_BY_ID[ingredientId]
+  return ingredient ? MEAT_CATEGORIES.includes(ingredient.category) : false
+}
+
+function getMeatTotalGrams(lines: RecipeLine[]): number {
+  return lines.reduce(
+    (sum, line) => (isMeatIngredient(line.ingredientId) ? sum + Math.max(0, line.grams) : sum),
+    0,
+  )
+}
+
+function roundToTenth(value: number): number {
+  return Math.round(value * 10) / 10
 }
 
 interface DogProfileFormProps {
@@ -195,6 +224,7 @@ function DogProfileForm({ profile, onChange }: DogProfileFormProps) {
 
 interface RecipeFormProps {
   lines: RecipeLine[]
+  cookMode: boolean
   onChangeLine: (id: string, patch: Partial<RecipeLine>) => void
   onAddLine: () => void
   onAddEggshellAuto: () => void
@@ -203,12 +233,15 @@ interface RecipeFormProps {
   saveRecipeName: string
   onSaveRecipeNameChange: (name: string) => void
   onSaveRecipe: () => void
-  onCopyRecipe: (saved: SavedRecipe) => void
+  onEditRecipe: (saved: SavedRecipe) => void
+  onCookRecipe: (saved: SavedRecipe) => void
   onDeleteSaved: (id: string) => void
+  onExitCookMode: () => void
 }
 
 function RecipeForm({
   lines,
+  cookMode,
   onChangeLine,
   onAddLine,
   onAddEggshellAuto,
@@ -217,8 +250,10 @@ function RecipeForm({
   saveRecipeName,
   onSaveRecipeNameChange,
   onSaveRecipe,
-  onCopyRecipe,
+  onEditRecipe,
+  onCookRecipe,
   onDeleteSaved,
+  onExitCookMode,
 }: RecipeFormProps) {
   const hasAutoEggshell = lines.some(
     (l) => l.ingredientId === EGGSHELL_POWDER_ID && l.auto === true,
@@ -231,6 +266,15 @@ function RecipeForm({
         Choose ingredients and enter the grams for a single meal. Values are approximate and based
         on common food composition tables.
       </p>
+      {cookMode && (
+        <p className="cook-mode-note">
+          Cook mode is on: edit only meat/organ amounts. Other ingredients auto-scale to keep the
+          same recipe balance.
+          <button type="button" className="secondary-button" onClick={onExitCookMode}>
+            Exit cook mode
+          </button>
+        </p>
+      )}
 
       <div className="recipe-table" aria-label="Dog recipe ingredients">
         <div className="recipe-header">
@@ -241,11 +285,18 @@ function RecipeForm({
         {lines.map((line) => {
           const isAutoEggshell =
             line.ingredientId === EGGSHELL_POWDER_ID && line.auto === true
+          const isMeat = isMeatIngredient(line.ingredientId)
+          const readOnlyInCookMode = cookMode && !isMeat && !isAutoEggshell
+          const cookEditableRow = cookMode && isMeat
           return (
-            <div key={line.id} className="recipe-row">
+            <div
+              key={line.id}
+              className={`recipe-row ${cookEditableRow ? 'recipe-row-editable' : ''}`}
+            >
               <select
                 className="recipe-select"
                 value={line.ingredientId}
+                disabled={cookMode}
                 onChange={(event) => {
                   const newId = event.target.value || ''
                   onChangeLine(line.id, {
@@ -262,7 +313,10 @@ function RecipeForm({
               </select>
 
               {isAutoEggshell ? (
-                <span className="recipe-amount-auto" title="Calculated from meat phosphorus to balance Ca:P">
+                <span
+                  className="recipe-amount-auto"
+                  title="Calculated from meat phosphorus to balance Ca:P"
+                >
                   {line.grams > 0 ? line.grams.toFixed(1) : '0'} (auto)
                 </span>
               ) : (
@@ -272,6 +326,7 @@ function RecipeForm({
                   step={1}
                   className="recipe-input"
                   value={Number.isFinite(line.grams) ? line.grams : ''}
+                  disabled={readOnlyInCookMode}
                   onChange={(event) => {
                     const raw = event.target.value
                     const grams = raw === '' ? 0 : Number(raw)
@@ -284,6 +339,7 @@ function RecipeForm({
                 type="button"
                 className="secondary-button"
                 onClick={() => onRemoveLine(line.id)}
+                disabled={cookMode}
                 aria-label="Remove ingredient"
               >
                 ✕
@@ -294,7 +350,7 @@ function RecipeForm({
       </div>
 
       <div className="recipe-actions">
-        <button type="button" className="primary-button" onClick={onAddLine}>
+        <button type="button" className="primary-button" onClick={onAddLine} disabled={cookMode}>
           Add ingredient
         </button>
         {!hasAutoEggshell && (
@@ -302,6 +358,7 @@ function RecipeForm({
             type="button"
             className="secondary-button"
             onClick={onAddEggshellAuto}
+            disabled={cookMode}
           >
             Add eggshell (auto)
           </button>
@@ -309,7 +366,7 @@ function RecipeForm({
       </div>
 
       <div className="panel-section">
-        <h3 className="panel-subtitle">Save & copy recipe</h3>
+        <h3 className="panel-subtitle">Save & use recipe</h3>
         <div className="save-recipe-row">
           <input
             type="text"
@@ -335,9 +392,16 @@ function RecipeForm({
                   <button
                     type="button"
                     className="secondary-button"
-                    onClick={() => onCopyRecipe(saved)}
+                    onClick={() => onEditRecipe(saved)}
                   >
-                    Copy
+                    Edit recipe
+                  </button>
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={() => onCookRecipe(saved)}
+                  >
+                    Cook recipe
                   </button>
                   <button
                     type="button"
@@ -516,6 +580,7 @@ function App() {
   const [dogProfile, setDogProfile] = useState<DogProfile>(DEFAULT_DOG_PROFILE)
   const [savedRecipes, setSavedRecipes] = useState<SavedRecipe[]>(loadSavedRecipes)
   const [saveRecipeName, setSaveRecipeName] = useState('')
+  const [cookMode, setCookMode] = useState<CookModeState | null>(null)
 
   const effectiveLines = useMemo(
     () =>
@@ -547,20 +612,54 @@ function App() {
   )
 
   const handleChangeLine = (id: string, patch: Partial<RecipeLine>) => {
-    setRecipeLines((current) =>
-      current.map((line) => (line.id === id ? { ...line, ...patch } : line)),
-    )
+    if (!cookMode) {
+      setRecipeLines((current) =>
+        current.map((line) => (line.id === id ? { ...line, ...patch } : line)),
+      )
+      return
+    }
+
+    setRecipeLines((current) => {
+      const target = current.find((line) => line.id === id)
+      if (!target) return current
+
+      const targetIsMeat = isMeatIngredient(target.ingredientId)
+      const isChangingGrams = Object.prototype.hasOwnProperty.call(patch, 'grams')
+      const isChangingIngredient = Object.prototype.hasOwnProperty.call(patch, 'ingredientId')
+
+      // In cook mode, ingredient composition is locked. Only meat grams can be edited.
+      if (isChangingIngredient) return current
+      if (isChangingGrams && !targetIsMeat) return current
+
+      const next = current.map((line) => (line.id === id ? { ...line, ...patch } : { ...line }))
+
+      const baseById = new Map(cookMode.baseLines.map((line) => [line.id, line]))
+      const baseMeatTotal = getMeatTotalGrams(cookMode.baseLines)
+      const currentMeatTotal = getMeatTotalGrams(next)
+      const scale = baseMeatTotal > 0 ? currentMeatTotal / baseMeatTotal : 1
+
+      return next.map((line) => {
+        const baseLine = baseById.get(line.id)
+        if (!baseLine) return line
+        if (line.ingredientId === EGGSHELL_POWDER_ID && line.auto) return line
+        if (isMeatIngredient(line.ingredientId)) return line
+        return { ...line, grams: roundToTenth(baseLine.grams * scale) }
+      })
+    })
   }
 
   const handleAddLine = () => {
+    if (cookMode) return
     setRecipeLines((current) => [...current, createEmptyLine()])
   }
 
   const handleRemoveLine = (id: string) => {
+    if (cookMode) return
     setRecipeLines((current) => current.filter((line) => line.id !== id))
   }
 
   const handleAddEggshellAuto = () => {
+    if (cookMode) return
     if (recipeLines.some((l) => l.ingredientId === EGGSHELL_POWDER_ID && l.auto)) return
     setRecipeLines((current) => [
       ...current,
@@ -589,8 +688,21 @@ function App() {
     setSaveRecipeName('')
   }
 
-  const handleCopyRecipe = (saved: SavedRecipe) => {
+  const handleEditRecipe = (saved: SavedRecipe) => {
     setRecipeLines(duplicateLines(saved.lines))
+    setCookMode(null)
+  }
+
+  const handleCookRecipe = (saved: SavedRecipe) => {
+    const loaded = duplicateLines(saved.lines)
+    setRecipeLines(loaded)
+    setCookMode({
+      baseLines: cloneLines(loaded),
+    })
+  }
+
+  const handleExitCookMode = () => {
+    setCookMode(null)
   }
 
   const handleDeleteSaved = (id: string) => {
@@ -616,6 +728,7 @@ function App() {
           <DogProfileForm profile={dogProfile} onChange={setDogProfile} />
           <RecipeForm
             lines={effectiveLines}
+            cookMode={Boolean(cookMode)}
             onChangeLine={handleChangeLine}
             onAddLine={handleAddLine}
             onAddEggshellAuto={handleAddEggshellAuto}
@@ -624,8 +737,10 @@ function App() {
             saveRecipeName={saveRecipeName}
             onSaveRecipeNameChange={setSaveRecipeName}
             onSaveRecipe={handleSaveRecipe}
-            onCopyRecipe={handleCopyRecipe}
+            onEditRecipe={handleEditRecipe}
+            onCookRecipe={handleCookRecipe}
             onDeleteSaved={handleDeleteSaved}
+            onExitCookMode={handleExitCookMode}
           />
         </section>
 

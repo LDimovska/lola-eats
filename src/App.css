@@ -179,6 +179,33 @@
   gap: 0.5rem;
 }
 
+.recipe-row-editable {
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.75rem;
+  padding: 0.35rem;
+}
+
+.recipe-row-editable .recipe-select,
+.recipe-row-editable .recipe-input {
+  background-color: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.cook-mode-note {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #fde68a;
+  background-color: #fffbeb;
+  color: #92400e;
+  font-size: 0.86rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
 .save-recipe-row {
   display: flex;
   gap: 0.5rem;
