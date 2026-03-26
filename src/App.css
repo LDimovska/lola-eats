@@ -1,0 +1,364 @@
+.app {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.app-title {
+  font-size: 2.3rem;
+  margin: 0;
+}
+
+.app-subtitle {
+  margin: 0;
+  max-width: 60rem;
+  color: #4b5563;
+  font-size: 0.98rem;
+}
+
+.app-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+  gap: 1.75rem;
+  align-items: flex-start;
+}
+
+.app-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.app-footer {
+  margin-top: 1rem;
+}
+
+.disclaimer {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.panel {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem 1.5rem 1.25rem;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.03);
+}
+
+.panel-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.panel-description {
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.panel-section {
+  margin-top: 1.25rem;
+  border-top: 1px solid #f3f4f6;
+  padding-top: 1.1rem;
+}
+
+.panel-subtitle {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.panel-placeholder {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.profile-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.profile-hint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.15rem;
+}
+
+.recipe-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.recipe-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 0.7fr) auto;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+}
+
+.recipe-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 0.7fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.recipe-select,
+.recipe-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid #d1d5db;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background-color: #f9fafb;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.recipe-select:focus,
+.recipe-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.25);
+  background-color: #ffffff;
+}
+
+.recipe-input::-webkit-outer-spin-button,
+.recipe-input::-webkit-inner-spin-button {
+  margin: 0;
+}
+
+.recipe-input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.recipe-amount-auto {
+  padding: 0.6rem 0.8rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.recipe-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.save-recipe-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.save-recipe-row .recipe-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.saved-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.saved-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.saved-item:last-child {
+  border-bottom: none;
+}
+
+.saved-name {
+  font-size: 0.9rem;
+  color: #111827;
+}
+
+.saved-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.primary-button,
+.secondary-button {
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.primary-button {
+  background-color: #4f46e5;
+  color: #f9fafb;
+  box-shadow: 0 7px 14px rgba(79, 70, 229, 0.25);
+}
+
+.primary-button:hover {
+  background-color: #4338ca;
+}
+
+.primary-button:focus-visible {
+  outline: 3px solid #a5b4fc;
+  outline-offset: 2px;
+}
+
+.secondary-button {
+  padding: 0.35rem 0.65rem;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border-color: #e5e7eb;
+}
+
+.secondary-button:hover {
+  background-color: #e5e7eb;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1.25rem;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.summary-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+}
+
+.summary-value {
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.summary-unit {
+  font-size: 0.78rem;
+  margin-left: 0.1rem;
+  color: #6b7280;
+}
+
+.summary-subvalue {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.guideline-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.guideline {
+  border-radius: 0.9rem;
+  border: 1px solid #e5e7eb;
+  padding: 0.7rem 0.9rem;
+  background-color: #f9fafb;
+}
+
+.guideline-title {
+  margin: 0 0 0.2rem;
+  font-size: 0.9rem;
+}
+
+.guideline-message {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #4b5563;
+}
+
+.guideline-ok {
+  border-color: #bbf7d0;
+  background-color: #ecfdf5;
+}
+
+.guideline-warning {
+  border-color: #fed7aa;
+  background-color: #fffbeb;
+}
+
+.guideline-info {
+  border-color: #bfdbfe;
+  background-color: #eff6ff;
+}
+
+@media (max-width: 768px) {
+  .app {
+    padding-inline: 1.25rem;
+  }
+
+  .app-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .profile-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .recipe-header,
+  .recipe-row {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) auto;
+  }
+
+  .summary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
