@@ -589,8 +589,9 @@ function App() {
           ...line,
           grams: Number.isFinite(line.grams) ? line.grams : 0,
         })),
+        dogProfile.ageMonths,
       ),
-    [recipeLines],
+    [recipeLines, dogProfile.ageMonths],
   )
 
   const hasAnyAmount = effectiveLines.some((line) => line.grams > 0)

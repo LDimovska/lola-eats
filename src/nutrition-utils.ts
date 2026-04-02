@@ -132,14 +132,29 @@ export function computeNutrition(
   return totals
 }
 
-const TARGET_CA_P_RATIO = 1.2
+/**
+ * Ca:P target used for eggshell auto-calculation.
+ *
+ * Growth/pup diets generally require higher Ca and P targets than adult diets.
+ * For your mini poodle, we switch to adult ratio at `MINI_Poodle_ADULT_CUTOFF_MONTHS`.
+ *
+ * These are simplified educational targets (not vet-calculated formulation).
+ */
+const GROWTH_CA_P_RATIO = 2
+const ADULT_CA_P_RATIO = 1.2
+const MINI_PUPPY_ADULT_CUTOFF_MONTHS = 12
+
+function getTargetCaPRatio(ageMonths: number): number {
+  if (!Number.isFinite(ageMonths) || ageMonths <= 0) return ADULT_CA_P_RATIO
+  return ageMonths < MINI_PUPPY_ADULT_CUTOFF_MONTHS ? GROWTH_CA_P_RATIO : ADULT_CA_P_RATIO
+}
 
 /**
  * Returns recipe lines with auto eggshell powder amount computed from meat phosphorus.
  * Only lines with ingredientId === EGGSHELL_POWDER_ID and auto === true are updated;
  * phosphorus from ingredients in MEAT_CATEGORIES is used to compute required calcium.
  */
-export function getEffectiveRecipeLines(lines: RecipeLine[]): RecipeLine[] {
+export function getEffectiveRecipeLines(lines: RecipeLine[], ageMonths: number): RecipeLine[] {
   const autoEggshellIndex = lines.findIndex(
     (l) => l.ingredientId === EGGSHELL_POWDER_ID && l.auto === true,
   )
@@ -166,7 +181,8 @@ export function getEffectiveRecipeLines(lines: RecipeLine[]): RecipeLine[] {
     calciumFromOthersMg += ing.calciumMgPer100g * factor
   }
 
-  const requiredCalciumMg = phosphorusFromMeatMg * TARGET_CA_P_RATIO
+  const targetCaPRatio = getTargetCaPRatio(ageMonths)
+  const requiredCalciumMg = phosphorusFromMeatMg * targetCaPRatio
   const needCalciumMg = requiredCalciumMg - calciumFromOthersMg
   const eggshellIng = INGREDIENTS_BY_ID[EGGSHELL_POWDER_ID]
   const caPer100g = eggshellIng?.calciumMgPer100g ?? 40000
