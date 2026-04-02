@@ -296,6 +296,17 @@ export const INGREDIENTS: Ingredient[] = [
     phosphorusMgPer100g: 181,
   },
   {
+    id: 'salmon',
+    name: 'Salmon with skin',
+    category: 'meat',
+    caloriesPer100g: 200,
+    proteinPer100g: 22,
+    fatPer100g: 12,
+    carbPer100g: 0,
+    calciumMgPer100g: 15,
+    phosphorusMgPer100g: 245,
+  },
+  {
     id: EGGSHELL_POWDER_ID,
     name: 'Eggshell powder (auto from meat P)',
     category: 'supplement',
